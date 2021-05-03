@@ -7,9 +7,10 @@ RESOURCESDIR=resources
 OUTDIR=out
 
 CSRC=$(shell find $(SRCDIR) -name '*.c' ! -wholename 'src/efi/main.c')
+RESOURCES=$(shell find $(RESOURCESDIR) -name '*.*')
 
 .DEFAULT_GOAL = build
-build: efi compile_c link create_img
+build: clean efi compile_c link create_img
 
 efi: $(SRCDIR)/efi/main.c
 	mkdir -p $(OUTDIR)
@@ -33,6 +34,8 @@ create_img:
 	mcopy -i $(OUTDIR)/snow.img $(OUTDIR)/BOOTX64.EFI ::/EFI/BOOT
 	mcopy -i $(OUTDIR)/snow.img startup.nsh ::
 	mcopy -i $(OUTDIR)/snow.img $(OUTDIR)/kernel.elf ::
+
+	$(foreach file, $(RESOURCES), mcopy -i $(OUTDIR)/snow.img $(file) ::;)
 
 clean:
 	rm -rf out/*

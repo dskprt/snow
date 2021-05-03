@@ -1,0 +1,10 @@
+typedef struct {
+    unsigned char magic[2];
+    unsigned char mode;
+    unsigned char charsize;
+} PSF1_HEADER;
+
+typedef struct {
+    PSF1_HEADER* header;
+    void* glyphBuffer;
+} PSF1_FONT;
