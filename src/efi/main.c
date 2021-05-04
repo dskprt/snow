@@ -189,8 +189,9 @@ PSF1_FONT* LoadPSF1Font(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandl
 	return finalFont;
 }
 
+Framebuffer framebuffer;
+
 Framebuffer* SetupGOP(EFI_SYSTEM_TABLE* SystemTable) {
-	Framebuffer framebuffer;
 	EFI_STATUS Status;
 	EFI_GRAPHICS_OUTPUT_PROTOCOL *GOP;
 
@@ -259,7 +260,7 @@ Framebuffer* SetupGOP(EFI_SYSTEM_TABLE* SystemTable) {
 	framebuffer.Height = GOP->Mode->Info->VerticalResolution;
 	framebuffer.PixelsPerScanLine = GOP->Mode->Info->PixelsPerScanLine;
 	framebuffer.BytesPerPixel = 4;
-	
+	//if(&framebuffer == NULL) PrintAt(11, 2, L"framebuffer null trolololol epic pwned");
 	return &framebuffer;
 }
 
@@ -267,13 +268,13 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 	InitializeLib(ImageHandle, SystemTable);
 
 	Elf64_Addr kernelEntry = LoadKernel(ImageHandle, SystemTable);
-	if(kernelEntry == 0) return EFI_SUCCESS;
+	if(kernelEntry == 0) { Print(L"Kernel entry 0"); return EFI_SUCCESS; }
 
 	PSF1_FONT* font = LoadPSF1Font(NULL, L"Unifont-APL8x16-13.0.06.psf", ImageHandle, SystemTable);
-	if(!font) return EFI_SUCCESS;
+	if(!font) { Print(L"font null"); return EFI_SUCCESS; }
 
 	Framebuffer* framebuffer = SetupGOP(SystemTable);
-	if(!framebuffer) return EFI_SUCCESS;
+	if(!framebuffer) { Print(L"framebuffer null"); return EFI_SUCCESS; }
 
 	void (*kmain)(Framebuffer*, PSF1_FONT*) = ((__attribute__((sysv_abi)) void (*)(Framebuffer*, PSF1_FONT*)) kernelEntry);
 	kmain(framebuffer, font);

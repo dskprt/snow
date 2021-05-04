@@ -5,8 +5,8 @@ void GfxDrawChar(Framebuffer* framebuffer, PSF1_FONT* font, char chr, int x, int
     unsigned int* bufPtr = framebuffer->Address;
     char* fontPtr = font->glyphBuffer + (chr * font->header->charsize);
 
-    for(unsigned long _y = y; y < y + 16; _y++) {
-        for(unsigned long _x = x; x < x + 8; _x++) {
+    for(unsigned long _y = y; _y < y + 16; _y++) {
+        for(unsigned long _x = x; _x < x + 8; _x++) {
             if((*fontPtr & (0b10000000 >> (_x - x))) > 0) {
                 *(unsigned int*)(bufPtr + _x + (_y * framebuffer->PixelsPerScanLine)) = color;
             }
@@ -23,7 +23,7 @@ void GfxDrawString(Framebuffer* framebuffer, PSF1_FONT* font, char* text, int x,
     int cursorY = y;
 
     while(*chr != 0) {
-        GfxDrawChar(framebuffer, font, *chr, x, y, color);
+        GfxDrawChar(framebuffer, font, *chr, cursorX, cursorY, color);
         cursorX += 8 + 2;
 
         if(cursorX + 8 + 2 > framebuffer->Width) {
