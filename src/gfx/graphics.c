@@ -24,11 +24,11 @@ void GfxDrawString(Framebuffer* framebuffer, PSF1_FONT* font, char* text, int x,
 
     while(*chr != 0) {
         GfxDrawChar(framebuffer, font, *chr, cursorX, cursorY, color);
-        cursorX += 8 + 2;
+        cursorX += 8;
 
-        if(cursorX + 8 + 2 > framebuffer->Width) {
+        if(cursorX + 8 > framebuffer->Width) {
             cursorX = 0;
-            cursorY += 16 + 2;
+            cursorY += 16;
         }
 
         chr++;

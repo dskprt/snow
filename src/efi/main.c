@@ -5,8 +5,8 @@
 typedef unsigned long long size_t;
 
 typedef struct {
-    void* Address;
-    unsigned long long BufferSize;
+    unsigned int* Address;
+    size_t BufferSize;
     unsigned int Width;
     unsigned int Height;
     unsigned int PixelsPerScanLine;
@@ -50,19 +50,19 @@ EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EF
     EFI_LOADED_IMAGE_PROTOCOL* Image;
     
     if(check(uefi_call_wrapper(SystemTable->BootServices->HandleProtocol, 3,
-                    ImageHandle, &gEfiLoadedImageProtocolGuid, (void**) &Image))) return NULL;
+        ImageHandle, &gEfiLoadedImageProtocolGuid, (void**) &Image))) return NULL;
 
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* FileSystem;
     
     if(check(uefi_call_wrapper(SystemTable->BootServices->HandleProtocol, 3,
-                    Image->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void**) &FileSystem))) return NULL;
+        Image->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void**) &FileSystem))) return NULL;
 
     if(Directory == NULL) {
         if(check(uefi_call_wrapper(FileSystem->OpenVolume, 2, FileSystem, &Directory))) return NULL;
     }
 
     if(check(uefi_call_wrapper(Directory->Open, 5,
-                    Directory, &File, Path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY))) return NULL;
+        Directory, &File, Path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY))) return NULL;
 
     return File;
 }
