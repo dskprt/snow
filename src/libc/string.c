@@ -1,3 +1,5 @@
+#include "string.h"
+
 int itoa(int value, char *sp, int radix) {
     char tmp[256];
     char *tp = tmp;

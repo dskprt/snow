@@ -24,6 +24,14 @@ typedef struct {
     void* glyphBuffer;
 } PSF1_FONT;
 
+typedef struct {
+    Framebuffer* framebuffer;
+    PSF1_FONT* font;
+    EFI_MEMORY_DESCRIPTOR* memMap;
+    UINTN memMapSize;
+    UINTN memMapDescriptorSize;
+} BootInfo;
+
 int check(EFI_STATUS status) {
     if(EFI_ERROR(status)) {
         Print(L"Unexpected error occured.\r\n");
@@ -276,8 +284,29 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
     Framebuffer* framebuffer = SetupGOP(SystemTable);
     if(!framebuffer) return EFI_SUCCESS;
 
-    void (*kmain)(Framebuffer*, PSF1_FONT*) = ((__attribute__((sysv_abi)) void (*)(Framebuffer*, PSF1_FONT*)) kernelEntry);
-    kmain(framebuffer, font);
-    
+    EFI_MEMORY_DESCRIPTOR* Map = NULL;
+    UINTN MapSize, MapKey;
+    UINTN DescriptorSize;
+    UINT32 DescriptorVersion;
+ 
+    uefi_call_wrapper(SystemTable->BootServices->GetMemoryMap, 5,
+        &MapSize, Map, &MapKey, &DescriptorSize, &DescriptorVersion);
+    uefi_call_wrapper(SystemTable->BootServices->AllocatePool, 3,
+        EfiLoaderData, MapSize, (void**)&Map);
+    uefi_call_wrapper(SystemTable->BootServices->GetMemoryMap, 5,
+        &MapSize, Map, &MapKey, &DescriptorSize, &DescriptorVersion);
+
+    void (*kmain)(BootInfo*) = ((__attribute__((sysv_abi)) void (*)(BootInfo*)) kernelEntry);
+
+    BootInfo bootInfo;
+    bootInfo.framebuffer = framebuffer;
+    bootInfo.font = font;
+    bootInfo.memMap = Map;
+    bootInfo.memMapSize = MapSize;
+    bootInfo.memMapDescriptorSize = DescriptorSize;
+
+    if(check(uefi_call_wrapper(SystemTable->BootServices->ExitBootServices, 2, ImageHandle, MapKey))) return EFI_SUCCESS;
+
+    kmain(&bootInfo);
     return EFI_SUCCESS;
 }
