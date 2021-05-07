@@ -1,4 +1,3 @@
-#include "psf1font.h"
 #include "graphics.h"
 
 void GfxDrawChar(Framebuffer* framebuffer, PSF1_FONT* font, char chr, int x, int y, unsigned int color) {

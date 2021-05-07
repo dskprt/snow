@@ -34,7 +34,7 @@ typedef struct {
 
 int check(EFI_STATUS status) {
     if(EFI_ERROR(status)) {
-        Print(L"Unexpected error occured.\r\n");
+        Print(L"Unexpected error occured: %r\r\n", status);
         return 1;
     }
 
@@ -278,7 +278,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
     Elf64_Addr kernelEntry = LoadKernel(ImageHandle, SystemTable);
     if(kernelEntry == 0) return EFI_SUCCESS;
 
-    PSF1_FONT* font = LoadPSF1Font(NULL, L"Unifont-APL8x16-13.0.06.psf", ImageHandle, SystemTable);
+    PSF1_FONT* font = LoadPSF1Font(NULL, L"font.psf", ImageHandle, SystemTable);
     if(!font) return EFI_SUCCESS;
 
     Framebuffer* framebuffer = SetupGOP(SystemTable);

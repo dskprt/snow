@@ -1,3 +1,6 @@
+#pragma once
+#include "psf1font.h"
+
 typedef struct {
     unsigned int* Address;
     unsigned long long BufferSize;

@@ -32,7 +32,6 @@ create_img:
 	mmd -i $(OUTDIR)/snow.img ::/EFI
 	mmd -i $(OUTDIR)/snow.img ::/EFI/BOOT
 	mcopy -i $(OUTDIR)/snow.img $(OUTDIR)/BOOTX64.EFI ::/EFI/BOOT
-	mcopy -i $(OUTDIR)/snow.img startup.nsh ::
 	mcopy -i $(OUTDIR)/snow.img $(OUTDIR)/kernel.elf ::
 
 	$(foreach file, $(RESOURCES), mcopy -i $(OUTDIR)/snow.img $(file) ::;)
