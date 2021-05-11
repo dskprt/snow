@@ -1,15 +1,18 @@
 #pragma once
 #include "psf1font.h"
 
-typedef struct {
+struct Framebuffer {
     unsigned int* Address;
     unsigned long long BufferSize;
     unsigned int Width;
     unsigned int Height;
     unsigned int PixelsPerScanLine;
     unsigned int BytesPerPixel;
-} Framebuffer;
+};
 
-void GfxDrawChar(Framebuffer* framebuffer, PSF1_FONT* font, char chr, int x, int y, unsigned int color);
-void GfxDrawString(Framebuffer* framebuffer, PSF1_FONT* font, char* text, int x, int y, unsigned int color);
-void GfxDrawPixel(Framebuffer* framebuffer, int x, int y, unsigned int color);
+class Graphics {
+public:
+    static void DrawChar(Framebuffer* framebuffer, PSF1_FONT* font, char chr, int x, int y, unsigned int color);
+    static void DrawString(Framebuffer* framebuffer, PSF1_FONT* font, char* text, int x, int y, unsigned int color);
+    static void DrawPixel(Framebuffer* framebuffer, int x, int y, unsigned int color);
+};

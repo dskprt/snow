@@ -2,7 +2,8 @@
 #include <stdint.h>
 #include "../efi/api.h"
 
-extern const int PAGE_SIZE;
-
-extern uint64_t totalMem;
-uint64_t GetTotalMemory(EFI_MEMORY_DESCRIPTOR* memMap, uint64_t entries, uint64_t descSize);
+class Memory {
+public:
+    static const int PAGE_SIZE = 4096;
+    static uint64_t GetTotalMemory(EFI_MEMORY_DESCRIPTOR* memMap, uint64_t entries, uint64_t descSize);
+};

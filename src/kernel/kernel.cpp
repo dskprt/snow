@@ -1,31 +1,32 @@
 #include "kernel.h"
 
-void kmain(BootInfo* boot) {
-    PgInitialize(boot->memMap, boot->memMapSize, boot->memMapDescSize);
+extern "C" void kmain(BootInfo* boot) {
+    PageFrameAllocator allocator;
+    allocator.Initialize(boot->memMap, boot->memMapSize, boot->memMapDescSize);
 
     int cursorX = 5;
     int cursorY = 5;
 
     char buf[64];
 
-    GfxDrawString(boot->framebuffer, boot->font, "Free memory: ", cursorX, cursorY, 0xFFFFFFFF);
-    cursorX += GetTextWidth(boot->font, "Free memory: ");
-    itoa(GetFreeMemory(), buf, 10);
-    GfxDrawString(boot->framebuffer, boot->font, buf, cursorX, cursorY, 0xFFFFFFFF);
+    Graphics::DrawString(boot->framebuffer, boot->font, "Free memory: ", cursorX, cursorY, 0xFFFFFFFF);
+    cursorX += boot->font->GetTextWidth("Free memory: ");
+    itoa(allocator.GetFreeMemory(), buf, 10);
+    Graphics::DrawString(boot->framebuffer, boot->font, buf, cursorX, cursorY, 0xFFFFFFFF);
     cursorY += boot->font->header->charsize;
     cursorX = 5;
 
-    GfxDrawString(boot->framebuffer, boot->font, "Used memory: ", cursorX, cursorY, 0xFFFFFFFF);
-    cursorX += GetTextWidth(boot->font, "Used memory: ");
-    itoa(GetUsedMemory(), buf, 10);
-    GfxDrawString(boot->framebuffer, boot->font, buf, cursorX, cursorY, 0xFFFFFFFF);
+    Graphics::DrawString(boot->framebuffer, boot->font, "Used memory: ", cursorX, cursorY, 0xFFFFFFFF);
+    cursorX += boot->font->GetTextWidth("Used memory: ");
+    itoa(allocator.GetUsedMemory(), buf, 10);
+    Graphics::DrawString(boot->framebuffer, boot->font, buf, cursorX, cursorY, 0xFFFFFFFF);
     cursorY += boot->font->header->charsize;
     cursorX = 5;
 
-    GfxDrawString(boot->framebuffer, boot->font, "Reserved memory: ", cursorX, cursorY, 0xFFFFFFFF);
-    cursorX += GetTextWidth(boot->font, "Reserved memory: ");
-    itoa(GetReservedMemory(), buf, 10);
-    GfxDrawString(boot->framebuffer, boot->font, buf, cursorX, cursorY, 0xFFFFFFFF);
+    Graphics::DrawString(boot->framebuffer, boot->font, "Reserved memory: ", cursorX, cursorY, 0xFFFFFFFF);
+    cursorX += boot->font->GetTextWidth("Reserved memory: ");
+    itoa(allocator.GetReservedMemory(), buf, 10);
+    Graphics::DrawString(boot->framebuffer, boot->font, buf, cursorX, cursorY, 0xFFFFFFFF);
     cursorY += boot->font->header->charsize;
     cursorX = 5;
 

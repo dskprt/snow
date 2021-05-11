@@ -11,8 +11,8 @@ typedef struct {
 typedef struct {
     PSF1_HEADER* header;
     void* glyphBuffer;
-} PSF1_FONT;
 
-static inline size_t GetTextWidth(PSF1_FONT* font, const char* str) {
-    return strlen(str) * (font->header->charsize / 2);
-}
+    inline size_t GetTextWidth(const char* str) {
+        return strlen(str) * (header->charsize / 2);
+    }
+} PSF1_FONT;

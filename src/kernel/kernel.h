@@ -8,10 +8,10 @@
 //#include "../memory/memory.h"
 #include "../memory/page_allocator.h"
 
-typedef struct {
+struct BootInfo {
     Framebuffer* framebuffer;
     PSF1_FONT* font;
     EFI_MEMORY_DESCRIPTOR* memMap;
     uint64_t memMapSize;
     uint64_t memMapDescSize;
-} BootInfo;
+};

@@ -7,10 +7,11 @@ RESOURCESDIR=resources
 OUTDIR=out
 
 CSRC=$(shell find $(SRCDIR) -name '*.c' ! -wholename 'src/efi/main.c')
+CPPSRC=$(shell find $(SRCDIR) -name '*.cpp')
 RESOURCES=$(shell find $(RESOURCESDIR) -name '*.*')
 
 .DEFAULT_GOAL = build
-build: clean efi compile_c link create_img
+build: clean efi compile_c compile_cpp link create_img
 
 efi: $(SRCDIR)/efi/main.c
 	mkdir -p $(OUTDIR)
@@ -22,6 +23,10 @@ efi: $(SRCDIR)/efi/main.c
 compile_c: $(CSRC)
 	mkdir -p $(OUTDIR)
 	$(foreach file, $^, gcc $(CFLAGS) -c $(file) -o $(OUTDIR)/$(basename $(notdir $(file))).o;)
+
+compile_cpp: $(CPPSRC)
+	mkdir -p $(OUTDIR)
+	$(foreach file, $^, g++ $(CFLAGS) -c $(file) -o $(OUTDIR)/$(basename $(notdir $(file))).o;)
 
 link:
 	ld $(LDFLAGS) -o $(OUTDIR)/kernel.elf $(wildcard $(OUTDIR)/*.o)

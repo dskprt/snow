@@ -1,9 +1,7 @@
 #include "memory.h"
 
-const int PAGE_SIZE = 4096;
-
-uint64_t GetTotalMemory(EFI_MEMORY_DESCRIPTOR* map, uint64_t entries, uint64_t descSize) {
-    int totalMem;
+uint64_t Memory::GetTotalMemory(EFI_MEMORY_DESCRIPTOR* map, uint64_t entries, uint64_t descSize) {
+    static uint64_t totalMem = 0;
     if(totalMem > 0) return totalMem;
 
     for(int i = 0; i < entries; i++) {
