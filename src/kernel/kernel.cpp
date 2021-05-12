@@ -1,10 +1,46 @@
 #include "kernel.h"
 
-extern "C" void kmain(BootInfo* boot) {
-    PageFrameAllocator allocator;
-    allocator.Initialize(boot->memMap, boot->memMapSize, boot->memMapDescSize);
+extern uint64_t kstart;
+extern uint64_t kend;
 
-    int cursorX = 5;
+extern "C" void kmain(BootInfo* boot) {
+    _globalAllocator = PageFrameAllocator();
+    PageFrameAllocator::GetInstance().Initialize(boot->memMap, boot->memMapSize, boot->memMapDescSize);
+
+    uint64_t ksize = (uint64_t) &kend - (uint64_t) &kstart;
+    PageFrameAllocator::GetInstance().LockPages(&kstart, (uint64_t) ksize / 4096 + 1);
+
+    PageTable* PML4 = (PageTable*) PageFrameAllocator::GetInstance().RequestPage(); // <---- ADDRESS IS NULL
+    memset(PML4, 0, 0x1000);
+
+    PageTableManager pageTableManager = PageTableManager(PML4);
+
+    for(uint64_t t = 0; t < Memory::GetTotalMemory(boot->memMap,
+        boot->memMapSize / boot->memMapDescSize, boot->memMapDescSize); t+= 0x1000) {
+        
+        pageTableManager.MapMemory((void*)t, (void*)t);
+    }
+
+    uint64_t fbBase = (uint64_t) boot->framebuffer->Address;
+    uint64_t fbSize = (uint64_t) boot->framebuffer->BufferSize + 0x1000;
+
+    for(uint64_t t = fbBase; t < fbBase + fbSize; t += 4096) {
+        pageTableManager.MapMemory((void*)t, (void*)t);
+    }
+
+    asm("mov %0, %%cr3" : : "r" (PML4));
+
+    pageTableManager.MapMemory((void*)0x600000000, (void*)0x80000);
+
+    uint64_t* test = (uint64_t*) 0x600000000;
+    *test = 26;
+
+    char str[32];
+    itoa(*test, str, 10);
+
+    Graphics::DrawString(boot->framebuffer, boot->font, str, 5, 5, 0xFFFFFFFF);
+
+    /*int cursorX = 5;
     int cursorY = 5;
 
     char buf[64];
@@ -28,7 +64,7 @@ extern "C" void kmain(BootInfo* boot) {
     itoa(allocator.GetReservedMemory(), buf, 10);
     Graphics::DrawString(boot->framebuffer, boot->font, buf, cursorX, cursorY, 0xFFFFFFFF);
     cursorY += boot->font->header->charsize;
-    cursorX = 5;
+    cursorX = 5;*/
 
     // char totalMem[64];
     // itoa(GetTotalMemory(boot->memMap,

@@ -12,6 +12,10 @@ RESOURCES=$(shell find $(RESOURCESDIR) -name '*.*')
 
 .DEFAULT_GOAL = build
 build: clean efi compile_c compile_cpp link create_img
+debug: dbg_flags build
+
+dbg_flags:
+	$(eval CFLAGS += -g)
 
 efi: $(SRCDIR)/efi/main.c
 	mkdir -p $(OUTDIR)
@@ -46,3 +50,6 @@ clean:
 
 run:
 	qemu-system-x86_64 -drive file=out/snow.img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/OVMF/OVMF_VARS.fd -net none
+
+run_dbg:
+	qemu-system-x86_64 -s -drive file=out/snow.img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/OVMF/OVMF_VARS.fd -net none

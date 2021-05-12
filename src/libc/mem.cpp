@@ -5,3 +5,14 @@ void memcpy(char* dest, char* src, int len) {
         dest[i] = src[i];
     }
 }
+
+void* memset(void* start, int value, size_t num) {
+    unsigned char* p = (unsigned char*) start;
+    unsigned char x = value & 0xff;
+
+    while(num--) {
+        *p++ = x;
+    }
+
+    return start;
+}

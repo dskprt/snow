@@ -1,4 +1,11 @@
-#include "page_allocator.h"
+#include "page_frame_allocator.h"
+
+Bitmap bitmap;
+PageFrameAllocator _globalAllocator;
+
+PageFrameAllocator PageFrameAllocator::GetInstance() {
+    return _globalAllocator;
+}
 
 void PageFrameAllocator::Initialize(EFI_MEMORY_DESCRIPTOR* map, size_t mapSize, size_t descSize) {
     if(initialized) return;
@@ -42,7 +49,7 @@ void PageFrameAllocator::LockPage(void* address) {
     uint64_t index = (uint64_t) address / Memory::PAGE_SIZE;
     if(bitmap.GetValue(index)) return;
 
-    bitmap.SetValue(index, false);
+    bitmap.SetValue(index, true);
     freeMemory -= Memory::PAGE_SIZE;
     usedMemory += Memory::PAGE_SIZE;
 }

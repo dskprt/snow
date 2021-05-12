@@ -4,12 +4,11 @@
 #include "../efi/api.h"
 #include "../memory/memory.h"
 #include "../utils/bitmap.h"
-
-
+#include "../gfx/graphics.h"
 
 class PageFrameAllocator {
 public:
-    Bitmap bitmap;
+    //Bitmap bitmap;
 
     void Initialize(EFI_MEMORY_DESCRIPTOR* map, size_t mapSize, size_t descSize);
     void LockPage(void* address);
@@ -20,6 +19,8 @@ public:
     uint64_t GetFreeMemory();
     uint64_t GetUsedMemory();
     uint64_t GetReservedMemory();
+
+    static PageFrameAllocator GetInstance();
 private:
     uint64_t freeMemory = 0;
     uint64_t usedMemory = 0;
@@ -32,3 +33,5 @@ private:
     void ReleasePage(void* address);
     void ReleasePages(void* address, uint64_t count);
 };
+
+extern PageFrameAllocator _globalAllocator;

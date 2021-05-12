@@ -1,4 +1,5 @@
 #pragma once
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "../efi/api.h"
@@ -6,7 +7,8 @@
 #include "../gfx/graphics.h"
 //#include "../utils/bitmap.h"
 //#include "../memory/memory.h"
-#include "../memory/page_allocator.h"
+#include "../memory/page_frame_allocator.h"
+#include "../memory/page_table_manager.h"
 
 struct BootInfo {
     Framebuffer* framebuffer;
