@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../efi/api.h"
+#include "../../efi/api.h"
 
 class Memory {
 public:
