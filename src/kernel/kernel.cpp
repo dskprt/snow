@@ -4,7 +4,7 @@ extern uint64_t kstart;
 extern uint64_t kend;
 
 extern "C" void kmain(BootInfo* boot) {
-    _globalAllocator = PageFrameAllocator();
+    _globalFrameAllocator = PageFrameAllocator();
     PageFrameAllocator::GetInstance().Initialize(boot->memMap, boot->memMapSize, boot->memMapDescSize);
 
     uint64_t ksize = (uint64_t) &kend - (uint64_t) &kstart;
@@ -13,12 +13,13 @@ extern "C" void kmain(BootInfo* boot) {
     PageTable* PML4 = (PageTable*) PageFrameAllocator::GetInstance().RequestPage();
     memset(PML4, 0, Memory::PAGE_SIZE);
 
-    PageTableManager pageTableManager = PageTableManager(PML4);
+    _globalTableManager = PageTableManager();
+    PageTableManager::GetInstance().Initialize(PML4);
 
     for(uint64_t i = 0; i < Memory::GetTotalMemory(boot->memMap,
         boot->memMapSize / boot->memMapDescSize, boot->memMapDescSize); i += Memory::PAGE_SIZE) {
 
-        pageTableManager.MapMemory((void*) i, (void*) i);
+        PageTableManager::GetInstance().MapMemory((void*) i, (void*) i);
     }
 
     uint64_t fbBase = (uint64_t) boot->framebuffer->Address;
@@ -27,14 +28,16 @@ extern "C" void kmain(BootInfo* boot) {
     PageFrameAllocator::GetInstance().LockPages((void*) fbBase, (fbSize / Memory::PAGE_SIZE) + 1);
 
     for(uint64_t i = fbBase; i < fbBase + fbSize; i += Memory::PAGE_SIZE) {
-        pageTableManager.MapMemory((void*) i, (void*) i);
+        PageTableManager::GetInstance().MapMemory((void*) i, (void*) i);
     }
 
     asm("mov %0, %%cr3" : : "r" (PML4));
+    PageTableManager::GetInstance().MapMemory((void*) 0x600000000, (void*) 0x80000);
 
     memset(boot->framebuffer->Address, 0, boot->framebuffer->BufferSize); // clear screen
 
-    pageTableManager.MapMemory((void*) 0x600000000, (void*) 0x80000);
+    _globalHeap = Heap();
+    Heap::GetInstance().Initialize((void*) 0x0000100000000000, 0x10);
 
     uint64_t* test = (uint64_t*) 0x600000000;
     *test = 26;

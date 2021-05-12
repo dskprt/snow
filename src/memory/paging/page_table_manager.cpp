@@ -1,6 +1,12 @@
 #include "page_table_manager.hpp"
 
-PageTableManager::PageTableManager(PageTable* pml4address){
+PageTableManager _globalTableManager;
+
+PageTableManager PageTableManager::GetInstance() {
+    return _globalTableManager;
+}
+
+void PageTableManager::Initialize(PageTable* pml4address) {
     this->PML4 = pml4address;
 }
 

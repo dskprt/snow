@@ -1,12 +1,12 @@
 #include "page_frame_allocator.hpp"
 
 Bitmap bitmap;
-PageFrameAllocator _globalAllocator;
+PageFrameAllocator _globalFrameAllocator;
 
 uint64_t lastPage = 0;
 
 PageFrameAllocator PageFrameAllocator::GetInstance() {
-    return _globalAllocator;
+    return _globalFrameAllocator;
 }
 
 void PageFrameAllocator::Initialize(EFI_MEMORY_DESCRIPTOR* map, size_t mapSize, size_t descSize) {

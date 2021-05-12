@@ -1,10 +1,10 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
-#include "../efi/api.h"
-#include "../memory/memory.hpp"
-#include "../utils/bitmap.hpp"
-#include "../gfx/graphics.hpp"
+#include "../../efi/api.h"
+#include "../memory.hpp"
+#include "../../utils/bitmap.hpp"
+#include "../../gfx/graphics.hpp"
 
 class PageFrameAllocator {
 public:
@@ -34,4 +34,4 @@ private:
     void ReleasePages(void* address, uint64_t count);
 };
 
-extern PageFrameAllocator _globalAllocator;
+extern PageFrameAllocator _globalFrameAllocator;
