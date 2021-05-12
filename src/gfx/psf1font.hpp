@@ -1,6 +1,6 @@
 #pragma once
 #include <stddef.h>
-#include "../libc/string.h"
+#include "../libc/string.hpp"
 
 typedef struct {
     unsigned char magic[2];

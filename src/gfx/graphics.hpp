@@ -1,5 +1,5 @@
 #pragma once
-#include "psf1font.h"
+#include "psf1font.hpp"
 
 struct Framebuffer {
     unsigned int* Address;

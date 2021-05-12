@@ -2,9 +2,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../efi/api.h"
-#include "../memory/memory.h"
-#include "../utils/bitmap.h"
-#include "../gfx/graphics.h"
+#include "../memory/memory.hpp"
+#include "../utils/bitmap.hpp"
+#include "../gfx/graphics.hpp"
 
 class PageFrameAllocator {
 public:

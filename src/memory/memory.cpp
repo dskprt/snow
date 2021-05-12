@@ -1,4 +1,4 @@
-#include "memory.h"
+#include "memory.hpp"
 
 uint64_t Memory::GetTotalMemory(EFI_MEMORY_DESCRIPTOR* map, uint64_t entries, uint64_t descSize) {
     static uint64_t totalMem = 0;

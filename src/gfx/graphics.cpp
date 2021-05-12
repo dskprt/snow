@@ -1,4 +1,4 @@
-#include "graphics.h"
+#include "graphics.hpp"
 
 void Graphics::DrawChar(Framebuffer* framebuffer, PSF1_FONT* font, char chr, int x, int y, unsigned int color) {
     unsigned int* bufPtr = framebuffer->Address;

@@ -1,4 +1,4 @@
-#include "string.h"
+#include "string.hpp"
 
 int itoa(int value, char *sp, int radix) {
     char tmp[256];
