@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: Install dependencies
-        run: sudo apt-get install mtools gnu-efi
+        run: sudo apt-get install mtools gnu-efi nasm
       - name: Run Makefile
         run: make
       - name: Upload a Build Artifact
