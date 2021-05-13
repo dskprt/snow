@@ -7,11 +7,12 @@ RESOURCESDIR=resources
 OUTDIR=out
 
 CSRC=$(shell find $(SRCDIR) -name '*.c' ! -wholename 'src/efi/main.c')
-CPPSRC=$(shell find $(SRCDIR) -name '*.cpp')
+CPPSRC=$(shell find $(SRCDIR) -name '*.cpp' ! -wholename 'src/kernel/idt/interrupts.cpp')
+ASMSRC=$(shell find $(SRCDIR) -name '*.asm')
 RESOURCES=$(shell find $(RESOURCESDIR) -name '*.*')
 
 .DEFAULT_GOAL = build
-build: clean efi compile_c compile_cpp link create_img
+build: clean efi compile_c compile_cpp compile_asm interrupts link create_img
 debug: dbg_flags build
 
 dbg_flags:
@@ -31,6 +32,14 @@ compile_c: $(CSRC)
 compile_cpp: $(CPPSRC)
 	mkdir -p $(OUTDIR)
 	$(foreach file, $^, g++ $(CFLAGS) -c $(file) -o $(OUTDIR)/$(basename $(notdir $(file))).o;)
+
+compile_asm: $(ASMSRC)
+	mkdir -p $(OUTDIR)
+	$(foreach file, $^, nasm $(file) -f elf64 -o $(OUTDIR)/$(basename $(notdir $(file))).o;)
+
+interrupts: $(SRCDIR)/kernel/idt/interrupts.cpp
+	mkdir -p $(OUTDIR)
+	gcc -mno-red-zone -mgeneral-regs-only -ffreestanding -c $^ -o $(OUTDIR)/interrupts.o
 
 link:
 	ld $(LDFLAGS) -o $(OUTDIR)/kernel.elf $(wildcard $(OUTDIR)/*.o)

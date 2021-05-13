@@ -55,7 +55,6 @@ void Heap::Expand(size_t length) {
     newSegment->next = NULL;
     newSegment->length = length - sizeof(HeapSegmentHeader);
     newSegment->CombineBackward();
-
 }
 
 HeapSegmentHeader* HeapSegmentHeader::Split(size_t splitLength){

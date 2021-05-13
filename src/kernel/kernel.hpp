@@ -10,6 +10,9 @@
 #include "memory/paging/page_frame_allocator.hpp"
 #include "memory/paging/page_table_manager.hpp"
 #include "memory/heap.hpp"
+#include "gdt/gdt.hpp"
+#include "idt/interrupts.hpp"
+#include "idt/idt.hpp"
 
 struct BootInfo {
     Framebuffer* framebuffer;
@@ -18,3 +21,5 @@ struct BootInfo {
     uint64_t memMapSize;
     uint64_t memMapDescSize;
 };
+
+extern BootInfo* bootInfo;
