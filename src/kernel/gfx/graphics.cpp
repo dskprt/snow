@@ -23,11 +23,11 @@ void Graphics::DrawString(Framebuffer* framebuffer, PSF1_FONT* font, char* text,
 
     while(*chr != 0) {
         DrawChar(framebuffer, font, *chr, cursorX, cursorY, color);
-        cursorX += 8;
+        cursorX += font->header->charsize / 2;
 
-        if(cursorX + 8 > framebuffer->Width) {
+        if(cursorX + (font->header->charsize / 2) > framebuffer->Width) {
             cursorX = 0;
-            cursorY += 16;
+            cursorY += font->header->charsize;
         }
 
         chr++;

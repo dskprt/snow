@@ -57,7 +57,7 @@ extern "C" void kmain(BootInfo* boot) {
     asm("mov %0, %%cr3" : : "r" (PML4));
     //}
 
-    //{ interrupts setup
+    //{ prepare interrupts
     idtr.Limit = 0x0FFF;
     idtr.Offset = (uint64_t) PageFrameAllocator::GetInstance().RequestPage();
 
@@ -76,27 +76,39 @@ extern "C" void kmain(BootInfo* boot) {
     generalProtectionFaultInterrupt->type_attr = IDT_TA_InterruptGate;
     generalProtectionFaultInterrupt->selector = 0x08;
 
-    asm ("lidt %0" : : "m" (idtr));
-    //}
+    IDTDescEntry* keyboardInterrupt = (IDTDescEntry*) (idtr.Offset + 0x21 * sizeof(IDTDescEntry));
+    keyboardInterrupt->SetOffset((uint64_t) Keyboard_Handler);
+    keyboardInterrupt->type_attr = IDT_TA_InterruptGate;
+    keyboardInterrupt->selector = 0x08;
 
-    memset(boot->framebuffer->Address, 0, boot->framebuffer->BufferSize); // clear screen
+    asm("lidt %0" : : "m" (idtr));
+
+    PIC_Remap();
+
+    outb(PIC1_DATA, 0b11111101);
+    outb(PIC2_DATA, 0b11111111);
+
+    asm("sti");
+    //}
 
     //{ heap initialization
     _globalHeap = Heap();
     Heap::GetInstance().Initialize((void*) 0x0000100000000000, 0x10);
     //}
 
-    PageTableManager::GetInstance().MapMemory((void*) 0x600000000, (void*) 0x80000);
+    memset(boot->framebuffer->Address, 0, boot->framebuffer->BufferSize); // clear screen
 
-    uint64_t* test = (uint64_t*) 0x600000000;
-    *test = 26;
+    // PageTableManager::GetInstance().MapMemory((void*) 0x600000000, (void*) 0x80000);
 
-    char str[32];
-    itoa(*test, str, 10);
+    // uint64_t* test = (uint64_t*) 0x600000000;
+    // *test = 26;
 
-    Graphics::DrawString(boot->framebuffer, boot->font, str, 5, 5, 0xFFFFFFFF);
+    // char str[32];
+    // itoa(*test, str, 10);
 
+    // Graphics::DrawString(boot->framebuffer, boot->font, str, 5, 5, 0xFFFFFFFF);
 
+    Terminal::Initialize();
     
     while(true);
 }

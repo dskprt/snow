@@ -13,6 +13,8 @@
 #include "gdt/gdt.hpp"
 #include "idt/interrupts.hpp"
 #include "idt/idt.hpp"
+#include "io/ports.hpp"
+#include "terminal/terminal.hpp"
 
 struct BootInfo {
     Framebuffer* framebuffer;
