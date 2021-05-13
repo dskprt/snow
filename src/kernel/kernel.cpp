@@ -61,10 +61,20 @@ extern "C" void kmain(BootInfo* boot) {
     idtr.Limit = 0x0FFF;
     idtr.Offset = (uint64_t) PageFrameAllocator::GetInstance().RequestPage();
 
-    IDTDescEntry* int_PageFault = (IDTDescEntry*) (idtr.Offset + 0xE * sizeof(IDTDescEntry));
-    int_PageFault->SetOffset((uint64_t) PageFault_Handler);
-    int_PageFault->type_attr = IDT_TA_InterruptGate;
-    int_PageFault->selector = 0x08;
+    IDTDescEntry* pageFaultInterrupt = (IDTDescEntry*) (idtr.Offset + 0xE * sizeof(IDTDescEntry));
+    pageFaultInterrupt->SetOffset((uint64_t) PageFault_Handler);
+    pageFaultInterrupt->type_attr = IDT_TA_InterruptGate;
+    pageFaultInterrupt->selector = 0x08;
+
+    IDTDescEntry* doubleFaultInterrupt = (IDTDescEntry*) (idtr.Offset + 0x8 * sizeof(IDTDescEntry));
+    doubleFaultInterrupt->SetOffset((uint64_t) DoubleFault_Handler);
+    doubleFaultInterrupt->type_attr = IDT_TA_InterruptGate;
+    doubleFaultInterrupt->selector = 0x08;
+
+    IDTDescEntry* generalProtectionFaultInterrupt = (IDTDescEntry*) (idtr.Offset + 0xD * sizeof(IDTDescEntry));
+    generalProtectionFaultInterrupt->SetOffset((uint64_t) GeneralProtectionFault_Handler);
+    generalProtectionFaultInterrupt->type_attr = IDT_TA_InterruptGate;
+    generalProtectionFaultInterrupt->selector = 0x08;
 
     asm ("lidt %0" : : "m" (idtr));
     //}
@@ -85,6 +95,8 @@ extern "C" void kmain(BootInfo* boot) {
     itoa(*test, str, 10);
 
     Graphics::DrawString(boot->framebuffer, boot->font, str, 5, 5, 0xFFFFFFFF);
+
+
     
     while(true);
 }
