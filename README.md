@@ -1,2 +1,2 @@
 ## dependencies
-`ovmf, mtools, build-essential, gnu-efi, qemu`
+`ovmf, mtools, build-essential, gnu-efi, qemu, nasm`

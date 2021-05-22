@@ -4,45 +4,42 @@ LDFLAGS=-T linker.ld -static -Bsymbolic -nostdlib
 
 SRCDIR=src
 RESOURCESDIR=resources
-OUTDIR=out
+OUTDIR=bin
 
-CSRC=$(shell find $(SRCDIR) -name '*.c' ! -wholename 'src/efi/main.c')
-CPPSRC=$(shell find $(SRCDIR) -name '*.cpp' ! -wholename 'src/kernel/idt/interrupts.cpp')
+CPPSRC=$(shell find $(SRCDIR) -name '*.cpp')
 ASMSRC=$(shell find $(SRCDIR) -name '*.asm')
 RESOURCES=$(shell find $(RESOURCESDIR) -name '*.*')
 
+OBJECTS := $(patsubst %.cpp, %.o, $(CPPSRC))
+OBJECTS += $(patsubst %.asm, %.so, $(ASMSRC))
+
 .DEFAULT_GOAL = build
-build: clean efi compile_c compile_cpp compile_asm interrupts link create_img
+build: $(SRCDIR)/efi/main.o $(OBJECTS) $(SOBJECTS) link create_img
 debug: dbg_flags build
 
 dbg_flags:
 	$(eval CFLAGS += -g)
 
-efi: $(SRCDIR)/efi/main.c
+$(SRCDIR)/efi/main.o: $(SRCDIR)/efi/main.c
 	mkdir -p $(OUTDIR)
-	gcc -I/usr/include/efi -I/usr/include/efi/x86_64 $(EFIFLAGS) -c $< -o $(OUTDIR)/efimain.o
-	ld -shared -Bsymbolic -L/usr/lib -T/usr/lib/elf_x86_64_efi.lds /usr/lib/crt0-efi-x86_64.o $(OUTDIR)/efimain.o -o $(OUTDIR)/efimain.so -lgnuefi -lefi
-	objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target efi-app-x86_64 --subsystem=10 $(OUTDIR)/efimain.so $(OUTDIR)/BOOTX64.EFI
-	rm $(OUTDIR)/efimain.o $(OUTDIR)/efimain.so
+	gcc -I/usr/include/efi -I/usr/include/efi/x86_64 $(EFIFLAGS) -c $< -o $@
+	ld -shared -Bsymbolic -L/usr/lib -T/usr/lib/elf_x86_64_efi.lds /usr/lib/crt0-efi-x86_64.o $@ -o $(basename $@).so -lgnuefi -lefi
+	objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target efi-app-x86_64 --subsystem=10 $(basename $@).so $(OUTDIR)/BOOTX64.EFI
 
-compile_c: $(CSRC)
-	mkdir -p $(OUTDIR)
-	$(foreach file, $^, gcc $(CFLAGS) -c $(file) -o $(OUTDIR)/$(basename $(notdir $(file))).o;)
+$(SRCDIR)/kernel/idt/interrupts.o: $(SRCDIR)/kernel/idt/interrupts.cpp
+	g++ -mno-red-zone -mgeneral-regs-only -ffreestanding -c $^ -o $@
 
-compile_cpp: $(CPPSRC)
-	mkdir -p $(OUTDIR)
-	$(foreach file, $^, g++ $(CFLAGS) -c $(file) -o $(OUTDIR)/$(basename $(notdir $(file))).o;)
+%.o: %.cpp
+	g++ $(CFLAGS) -c $< -o $@
 
-compile_asm: $(ASMSRC)
-	mkdir -p $(OUTDIR)
-	$(foreach file, $^, nasm $(file) -f elf64 -o $(OUTDIR)/$(basename $(notdir $(file))).o;)
+%.so: %.asm
+	nasm $< -f elf64 -o $@
 
 interrupts: $(SRCDIR)/kernel/idt/interrupts.cpp
-	mkdir -p $(OUTDIR)
 	gcc -mno-red-zone -mgeneral-regs-only -ffreestanding -c $^ -o $(OUTDIR)/interrupts.o
 
 link:
-	ld $(LDFLAGS) -o $(OUTDIR)/kernel.elf $(wildcard $(OUTDIR)/*.o)
+	ld $(LDFLAGS) -o $(OUTDIR)/kernel.elf $(OBJECTS)
 
 create_img:
 	dd if=/dev/zero of=$(OUTDIR)/snow.img bs=1k count=1440
@@ -55,10 +52,12 @@ create_img:
 	$(foreach file, $(RESOURCES), mcopy -i $(OUTDIR)/snow.img $(file) ::;)
 
 clean:
-	rm -rf out/*
+	find $(SRCDIR) -name "*.o" -type f -delete
+	find $(SRCDIR) -name "*.so" -type f -delete
+	rm bin/*.*
 
 run:
-	qemu-system-x86_64 -drive file=out/snow.img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/OVMF/OVMF_VARS.fd -net none
+	qemu-system-x86_64 -drive file=$(OUTDIR)/snow.img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/OVMF/OVMF_VARS.fd -net none
 
 run_dbg:
-	qemu-system-x86_64 -s -drive file=out/snow.img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/OVMF/OVMF_VARS.fd -net none
+	qemu-system-x86_64 -s -drive file=$(OUTDIR)/snow.img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/OVMF/OVMF_VARS.fd -net none
