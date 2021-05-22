@@ -21,4 +21,4 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         with:
           name: snow
-          path: out/snow.img
+          path: bin/snow.img
