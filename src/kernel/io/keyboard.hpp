@@ -23,8 +23,8 @@ enum Key {
 
 class Keyboard {
 public:
-    bool shift;
-    bool capsLock;
+    static bool shift;
+    static bool capsLock;
 
     static void HandleKeypress(uint8_t scancode, bool release);
 private:

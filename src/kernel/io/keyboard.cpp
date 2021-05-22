@@ -54,6 +54,6 @@ void Keyboard::_Handle(char c) {
     if(c == '\b') {
         Terminal::Backspace();
     } else if(c != '\t') {
-        Terminal::Print(c);
+        Terminal::PrintChar(c);
     }
 }

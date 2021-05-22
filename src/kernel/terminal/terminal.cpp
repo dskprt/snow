@@ -1,21 +1,17 @@
 #include "terminal.hpp"
 
-int16_t cursorX = 0;
-int16_t cursorY = 0;
+int16_t Terminal::cursorX = 0;
+int16_t Terminal::cursorY = 0;
 
-Framebuffer* framebuffer;
-PSF1_FONT* font;
+Framebuffer* Terminal::framebuffer;
+PSF1_FONT* Terminal::font;
 
-void Initialize(Framebuffer* _framebuffer, PSF1_FONT* _font) {
+void Terminal::Initialize(Framebuffer* _framebuffer, PSF1_FONT* _font) {
     framebuffer = _framebuffer;
     font = _font;
 }
 
-void Print(char c) {
-    Print(c, 0xFFFFFFFF);
-}
-
-void Print(char c, unsigned int color) {
+void Terminal::PrintChar(char c, unsigned int color) {
     if(c == '\n') {
         cursorX = 0;
         cursorY += font->header->charsize;
@@ -32,12 +28,12 @@ void Print(char c, unsigned int color) {
     }
 }
 
-void Print(char* str) {
-    Print(str, 0xFFFFFFFF);
+void Terminal::PrintChar(char c) {
+    PrintChar(c, 0xFFFFFFFF);
 }
 
-void Print(char* str, unsigned int color) {
-    char* c = text;
+void Terminal::Print(char* str, unsigned int color) {
+    char* c = str;
 
     while(*c != 0) {
         if(*c == '\n') {
@@ -59,18 +55,22 @@ void Print(char* str, unsigned int color) {
     }
 }
 
-void PrintLn(char* str) {
-    PrintLn(str, 0xFFFFFFFF);
+void Terminal::Print(char* str) {
+    Print(str, 0xFFFFFFFF);
 }
 
-void PrintLn(char* str, unsigned int color) {
+void Terminal::PrintLn(char* str, unsigned int color) {
     Print(str, color);
 
     cursorX = 0;
     cursorY += font->header->charsize;
 }
 
-void Backspace() {
+void Terminal::PrintLn(char* str) {
+    PrintLn(str, 0xFFFFFFFF);
+}
+
+void Terminal::Backspace() {
     if(cursorX - (font->header->charsize / 2) < 0) {
         cursorX = 0;
         cursorY -= font->header->charsize;
@@ -78,5 +78,5 @@ void Backspace() {
         cursorX -= font->header->charsize / 2;
     }
 
-    Graphics::DrawChar(framebuffer, font, '█', cursorX, cursorY, 0x00000000);
+    Graphics::DrawChar(framebuffer, font, '.', cursorX, cursorY, 0x00000000);
 }
