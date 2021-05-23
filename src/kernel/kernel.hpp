@@ -14,7 +14,7 @@
 #include "idt/interrupts.hpp"
 #include "idt/idt.hpp"
 #include "io/ports.hpp"
-#include "terminal/terminal.hpp"
+#include "console/console.hpp"
 
 struct BootInfo {
     Framebuffer* framebuffer;

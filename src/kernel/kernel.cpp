@@ -108,7 +108,7 @@ extern "C" void kmain(BootInfo* boot) {
 
     // Graphics::DrawString(boot->framebuffer, boot->font, str, 5, 5, 0xFFFFFFFF);
 
-    Terminal::Initialize(boot->framebuffer, boot->font);
+    Console::Initialize(boot->framebuffer, boot->font);
     
     while(true);
 }

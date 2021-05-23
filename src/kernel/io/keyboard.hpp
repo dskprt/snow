@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
-#include "../terminal/terminal.hpp"
+#include "../console/console.hpp"
 
 enum Key {
     Escape = 0x01,

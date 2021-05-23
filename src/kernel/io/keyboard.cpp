@@ -52,8 +52,10 @@ void Keyboard::HandleKeypress(uint8_t scancode, bool release) {
 
 void Keyboard::_Handle(char c) {
     if(c == '\b') {
-        Terminal::Backspace();
+        Console::Backspace();
     } else if(c != '\t') {
-        Terminal::PrintChar(c);
+        Console::Write(c);
     }
+
+    Console::Flush();
 }

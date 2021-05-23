@@ -3,4 +3,4 @@ OVMF/
 run.bat
 *.o
 *.so
-.vs
+.vscode
