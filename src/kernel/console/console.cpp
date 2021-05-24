@@ -24,8 +24,8 @@ void Console::Initialize(Framebuffer* _framebuffer, PSF1_FONT* _font) {
     bufferWidth = width;
     bufferHeight = height;
     
-    buffer = new char[bufferWidth * bufferHeight];
-    colorBuffer = new int[bufferWidth * bufferHeight];
+    buffer = (char*) malloc(bufferWidth * bufferHeight);
+    colorBuffer = (int*) malloc(bufferWidth * bufferHeight);
 
     for(int i = 0; i < (bufferWidth * bufferHeight); i++) {
         buffer[i] = 0;

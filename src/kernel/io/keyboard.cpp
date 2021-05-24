@@ -35,6 +35,8 @@ void Keyboard::HandleKeypress(uint8_t scancode, bool release) {
             else shift = true;
             break;
         default:
+            if(release) break;
+            
             if(scancode < (sizeof(lookupTable) / sizeof(*lookupTable))) {
                 char c = lookupTable[scancode];
 

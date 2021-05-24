@@ -1,20 +1,4 @@
 #include "mem.hpp"
- 
-void *operator new(size_t size) {
-    return malloc(size);
-}
- 
-void *operator new[](size_t size) {
-    return malloc(size);
-}
- 
-void operator delete(void* p) {
-    free(p);
-}
- 
-void operator delete[](void* p) {
-    free(p);
-}
 
 void* malloc(size_t size) {
     if(size % 0x10 > 0) {
@@ -49,9 +33,39 @@ void* malloc(size_t size) {
     return malloc(size);
 }
 
+void* realloc(void* ptr, size_t oldSize, size_t newSize) { 
+    void* newptr = malloc(oldSize);
+    
+    if(newptr == NULL) {
+        return NULL;
+    }
+
+    memcpy((char*) newptr, (char*) ptr, newSize);
+    free(ptr);
+
+    return newptr;
+}
+
 void free(void* address) {
     HeapSegmentHeader* segment = (HeapSegmentHeader*) address - 1;
     segment->free = true;
     segment->CombineForward();
     segment->CombineBackward();
+}
+
+void memcpy(char* dest, char* src, int len) {
+    for(int i = 0; i < len; i++) {
+        dest[i] = src[i];
+    }
+}
+
+void* memset(void* start, int value, size_t num) {
+    unsigned char* p = (unsigned char*) start;
+    unsigned char x = value & 0xff;
+
+    while(num--) {
+        *p++ = x;
+    }
+
+    return start;
 }
