@@ -2,6 +2,9 @@
 #include "paging/page_table_manager.hpp"
 #include "paging/page_frame_allocator.hpp"
 
+void* _heapStart;
+void* _heapEnd;
+
 HeapSegmentHeader* lastHeader;
 Heap _globalHeap;
 
@@ -12,15 +15,15 @@ Heap Heap::GetInstance() {
 void Heap::Initialize(void* heapAddress, size_t pageCount) {
     void* pos = heapAddress;
 
-    for (size_t i = 0; i < pageCount; i++){
+    for(size_t i = 0; i < pageCount; i++) {
         PageTableManager::GetInstance().MapMemory(pos, PageFrameAllocator::GetInstance().RequestPage());
         pos = (void*) ((size_t) pos + Memory::PAGE_SIZE);
     }
 
     size_t heapLength = pageCount * Memory::PAGE_SIZE;
 
-    heapStart = heapAddress;
-    heapEnd = (void*)((size_t)heapStart + heapLength);
+    _heapStart = heapAddress;
+    _heapEnd = (void*) ((size_t) _heapStart + heapLength);
 
     HeapSegmentHeader* startSegment = (HeapSegmentHeader*) heapAddress;
 
@@ -39,11 +42,11 @@ void Heap::Expand(size_t length) {
     }
 
     size_t pageCount = length / Memory::PAGE_SIZE;
-    HeapSegmentHeader* newSegment = (HeapSegmentHeader*) heapEnd;
+    HeapSegmentHeader* newSegment = (HeapSegmentHeader*) _heapEnd;
 
     for(size_t i = 0; i < pageCount; i++){
-        PageTableManager::GetInstance().MapMemory(heapEnd, PageFrameAllocator::GetInstance().RequestPage());
-        heapEnd = (void*) ((size_t) heapEnd + Memory::PAGE_SIZE);
+        PageTableManager::GetInstance().MapMemory(_heapEnd, PageFrameAllocator::GetInstance().RequestPage());
+        _heapEnd = (void*) ((size_t) _heapEnd + Memory::PAGE_SIZE);
     }
 
     newSegment->free = true;
@@ -58,9 +61,9 @@ void Heap::Expand(size_t length) {
 }
 
 HeapSegmentHeader* HeapSegmentHeader::Split(size_t splitLength){
-    if (splitLength < 0x10) return NULL;
+    if (splitLength < Memory::PAGE_SIZE) return NULL;
     int64_t splitSegLength = length - splitLength - (sizeof(HeapSegmentHeader));
-    if (splitSegLength < 0x10) return NULL;
+    if (splitSegLength < Memory::PAGE_SIZE) return NULL;
 
     HeapSegmentHeader* splitHeader = (HeapSegmentHeader*) ((size_t) this + splitLength + sizeof(HeapSegmentHeader));
     next->last = splitHeader;

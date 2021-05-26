@@ -1,14 +1,14 @@
 #include "mem.hpp"
 
 void* malloc(size_t size) {
-    if(size % 0x10 > 0) {
-        size -= (size % 0x10);
-        size += 0x10;
+    if(size % Memory::PAGE_SIZE > 0) {
+        size -= (size % Memory::PAGE_SIZE);
+        size += Memory::PAGE_SIZE;
     }
 
     if(size == 0) return NULL;
 
-    HeapSegmentHeader* currentSegment = (HeapSegmentHeader*) Heap::GetInstance().heapStart;
+    HeapSegmentHeader* currentSegment = (HeapSegmentHeader*) _heapStart;
 
     while(true) {
         if(currentSegment->free) {

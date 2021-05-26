@@ -19,6 +19,11 @@ struct interrupt_frame;
 __attribute__((interrupt)) void PageFault_Handler(struct interrupt_frame* frame);
 __attribute__((interrupt)) void DoubleFault_Handler(struct interrupt_frame* frame);
 __attribute__((interrupt)) void GeneralProtectionFault_Handler(struct interrupt_frame* frame);
+__attribute__((interrupt)) void FloatingPointException_Handler(struct interrupt_frame* frame);
+__attribute__((interrupt)) void Overflow_Handler(struct interrupt_frame* frame);
+__attribute__((interrupt)) void BoundRangeExceeded_Handler(struct interrupt_frame* frame);
+__attribute__((interrupt)) void SIMD_FloatingPointException_Handler(struct interrupt_frame* frame);
+__attribute__((interrupt)) void InvalidOpcode_Handler(struct interrupt_frame* frame);
 __attribute__((interrupt)) void Keyboard_Handler(struct interrupt_frame* frame);
 
 void PIC_Remap();

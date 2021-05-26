@@ -12,6 +12,26 @@ __attribute__((interrupt)) void GeneralProtectionFault_Handler(struct interrupt_
     Panic("General protection fault detected");
 }
 
+__attribute__((interrupt)) void FloatingPointException_Handler(struct interrupt_frame* frame) {
+    Panic("Floating-point exception detected");
+}
+
+__attribute__((interrupt)) void Overflow_Handler(struct interrupt_frame* frame) {
+    Panic("Overflow detected");
+}
+
+__attribute__((interrupt)) void BoundRangeExceeded_Handler(struct interrupt_frame* frame) {
+    Panic("Bound range exceeded");
+}
+
+__attribute__((interrupt)) void SIMD_FloatingPointException_Handler(struct interrupt_frame* frame) {
+    Panic("SIMD floating-point exception detected");
+}
+
+__attribute__((interrupt)) void InvalidOpcode_Handler(struct interrupt_frame* frame) {
+    Panic("Invalid opcode detected");
+}
+
 __attribute__((interrupt)) void Keyboard_Handler(struct interrupt_frame* frame) {
     uint8_t scancode = inb(0x60);
     Keyboard::HandleKeypress(scancode, false);

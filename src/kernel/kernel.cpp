@@ -76,6 +76,31 @@ extern "C" void kmain(BootInfo* boot) {
     generalProtectionFaultInterrupt->type_attr = IDT_TA_InterruptGate;
     generalProtectionFaultInterrupt->selector = 0x08;
 
+    IDTDescEntry* floatingPointExceptionInterrupt = (IDTDescEntry*) (idtr.Offset + 0x10 * sizeof(IDTDescEntry));
+    floatingPointExceptionInterrupt->SetOffset((uint64_t) FloatingPointException_Handler);
+    floatingPointExceptionInterrupt->type_attr = IDT_TA_InterruptGate;
+    floatingPointExceptionInterrupt->selector = 0x08;
+
+    IDTDescEntry* overflowInterrupt = (IDTDescEntry*) (idtr.Offset + 0x4 * sizeof(IDTDescEntry));
+    overflowInterrupt->SetOffset((uint64_t) Overflow_Handler);
+    overflowInterrupt->type_attr = IDT_TA_InterruptGate;
+    overflowInterrupt->selector = 0x08;
+
+    IDTDescEntry* boundRageExceededInterrupt = (IDTDescEntry*) (idtr.Offset + 0x5 * sizeof(IDTDescEntry));
+    boundRageExceededInterrupt->SetOffset((uint64_t) BoundRangeExceeded_Handler);
+    boundRageExceededInterrupt->type_attr = IDT_TA_InterruptGate;
+    boundRageExceededInterrupt->selector = 0x08;
+
+    IDTDescEntry* simdFloatingPointExceptionInterrupt = (IDTDescEntry*) (idtr.Offset + 0x13 * sizeof(IDTDescEntry));
+    simdFloatingPointExceptionInterrupt->SetOffset((uint64_t) SIMD_FloatingPointException_Handler);
+    simdFloatingPointExceptionInterrupt->type_attr = IDT_TA_InterruptGate;
+    simdFloatingPointExceptionInterrupt->selector = 0x08;
+
+    IDTDescEntry* invalidOpcodeInterrupt = (IDTDescEntry*) (idtr.Offset + 0x6 * sizeof(IDTDescEntry));
+    invalidOpcodeInterrupt->SetOffset((uint64_t) SIMD_FloatingPointException_Handler);
+    invalidOpcodeInterrupt->type_attr = IDT_TA_InterruptGate;
+    invalidOpcodeInterrupt->selector = 0x08;
+
     IDTDescEntry* keyboardInterrupt = (IDTDescEntry*) (idtr.Offset + 0x21 * sizeof(IDTDescEntry));
     keyboardInterrupt->SetOffset((uint64_t) Keyboard_Handler);
     keyboardInterrupt->type_attr = IDT_TA_InterruptGate;
@@ -106,9 +131,14 @@ extern "C" void kmain(BootInfo* boot) {
     // char str[32];
     // itoa(*test, str, 10);
 
-    // Graphics::DrawString(boot->framebuffer, boot->font, str, 5, 5, 0xFFFFFFFF);
+    Graphics::DrawString(boot->framebuffer, boot->font, "loaded", 100, 100, 0xFFFFFFFF);
+    
+    // uint64_t addr = (uint64_t) malloc(0x100);
+    // char str[32];
+    // itoa(addr, str, 16);
+
+    // Graphics::DrawString(boot->framebuffer, boot->font, str, 0, 0, 0xFFFFFFFF);
 
     Console::Initialize(boot->framebuffer, boot->font);
-    
     while(true);
 }

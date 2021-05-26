@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#include "memory.hpp"
 
 struct HeapSegmentHeader {
     size_t length;
@@ -13,11 +14,11 @@ struct HeapSegmentHeader {
     void CombineBackward();
 };
 
+extern void* _heapStart;
+extern void* _heapEnd;
+
 class Heap {
 public:
-    void* heapStart;
-    void* heapEnd;
-
     void Initialize(void* heapAddress, size_t pageCount);
     void Expand(size_t length);
 

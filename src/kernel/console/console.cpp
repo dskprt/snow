@@ -3,13 +3,13 @@
 Framebuffer* Console::framebuffer;
 PSF1_FONT* Console::font;
 
-int Console::width = 0;
-int Console::height = 0;
-int Console::bufferWidth = 0;
-int Console::bufferHeight = 0;
+int _console_width;
+int _console_height;
+int _console_bufferWidth;
+int _console_bufferHeight;
 
-int Console::cursorX = 0;
-int Console::cursorY = 0;
+int _console_cursorX;
+int _console_cursorY;
 
 char* Console::buffer;
 int* Console::colorBuffer;
@@ -18,16 +18,16 @@ void Console::Initialize(Framebuffer* _framebuffer, PSF1_FONT* _font) {
     framebuffer = _framebuffer;
     font = _font;
 
-    width = floor(_framebuffer->Width / (_font->header->charsize / 2));
-    height = floor(_framebuffer->Height / _font->header->charsize);
+    _console_width = floor(_framebuffer->Width / (_font->header->charsize / 2));
+    _console_height = floor(_framebuffer->Height / _font->header->charsize);
 
-    bufferWidth = width;
-    bufferHeight = height;
+    _console_bufferWidth = _console_width;
+    _console_bufferHeight = _console_height;
     
-    buffer = (char*) malloc(bufferWidth * bufferHeight);
-    colorBuffer = (int*) malloc(bufferWidth * bufferHeight);
+    buffer = (char*) malloc(_console_bufferWidth * _console_bufferHeight);
+    colorBuffer = (int*) malloc(_console_bufferWidth * _console_bufferHeight);
 
-    for(int i = 0; i < (bufferWidth * bufferHeight); i++) {
+    for(int i = 0; i < (_console_bufferWidth * _console_bufferHeight); i++) {
         buffer[i] = 0;
         colorBuffer[i] = 0;
     }
@@ -37,7 +37,14 @@ void Console::Write(char* str, int color) {
     char* text = str;
 
     while(*text != 0) {
-        int index = cursorY * bufferWidth + cursorX;
+        if(*text == '\b') {
+            Backspace();
+
+            text++;
+            continue;
+        }
+
+        int index = _console_cursorY * _console_bufferWidth + _console_cursorX;
 
         buffer[index] = *text;
         colorBuffer[index] = color;
@@ -47,27 +54,51 @@ void Console::Write(char* str, int color) {
 }
 
 void Console::Backspace() {
-    cursorX--;
+    _console_cursorX--;
     
-    if(cursorX < 0) {
-        cursorY--;
-        cursorX = bufferWidth - 1;
+    if(_console_cursorX < 0) { // TODO fix
+        _console_cursorY--;
+
+        uint8_t done = 0;
+        
+        for(uint16_t i = _console_bufferWidth - 1; i >= 0; i--) {
+            int index = _console_cursorY * _console_bufferWidth + i;
+
+            if(buffer[index] != '\0') {
+                _console_cursorX = i + 1;
+                done = 1;
+                break;
+            }
+        }
+
+        if(!done) {
+            _console_cursorX = 0;
+        }
     }
 
-    buffer[cursorY * bufferWidth + cursorX] = '\0';
+    buffer[_console_cursorY * _console_bufferWidth + _console_cursorX] = 127;
 }
 
 void Console::Flush() {
-    memset(bootInfo->framebuffer->Address, 0, bootInfo->framebuffer->BufferSize); // clear screen
+    //memset(bootInfo->framebuffer->Address, 0, bootInfo->framebuffer->BufferSize); // clear screen
 
     int x = 0;
     int y = 0;
 
-    for(int i = 0; i < (bufferWidth * bufferHeight); i++) {
+    for(int i = 0; i < (_console_bufferWidth * _console_bufferHeight); i++) {
         char c = buffer[i];
 
-        if(c == 0) break;
-        if(c == '\n') {
+        if(c == 0) {
+            continue;
+        } else if(c == 127) {
+            for(unsigned long _y = y; _y < y + 16; _y++) {
+                for(unsigned long _x = x; _x < x + 8; _x++) {
+                    *(unsigned int*)(framebuffer->Address + _x + (_y * framebuffer->PixelsPerScanLine)) = 0;
+                }
+            }
+
+            continue;
+        } else if(c == '\n') {
             x = 0;
             y += font->header->charsize;
             continue;

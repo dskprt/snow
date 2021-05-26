@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "../kernel/memory/heap.hpp"
+#include "../kernel/memory/memory.hpp"
 
 void* malloc(size_t size);
 void* realloc(void* ptr, size_t oldSize, size_t newSize);
